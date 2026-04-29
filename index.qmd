@@ -223,4 +223,4 @@ sessioninfo::session_info()
 
 ---
 
-*Rendered with [Quarto](https://quarto.org/) with `Mermaid` | Packages: `dplyr` `kableExtra` `knitr` `scales` `sessioninfo` `tidyverse`*
+*Rendered with [Quarto](https://quarto.org/) + [Mermaid](https://mermaid.js.org/) | Packages: `dplyr` `kableExtra` `knitr` `scales` `sessioninfo` `tidyverse`*
