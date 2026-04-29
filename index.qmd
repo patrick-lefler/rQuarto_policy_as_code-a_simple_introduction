@@ -1,0 +1,226 @@
+---
+title: "Policy as Code"
+subtitle: "A Simple Introduction"
+author: "Patrick Lefler"
+date: "April 30, 2026"
+abstract: "Policy as Code is the practice of expressing organizational rules as executable, version-controlled logic rather than as prose. This document introduces the concept through the most simple example possible - setting password characteristics that any team can read, test, and extend."
+format:
+  html:
+    code-fold: true
+    code-copy: false
+    code-overflow: wrap
+    code-tools: false
+    code-summary: "Display code"
+    df-print: kable
+    embed-math: true
+    embed-resources: true
+    fig-align: center
+    fig-height: 6
+    fig-width: 10
+    highlight-style: arrow
+    lightbox: true
+    linkcolor: "#0166CC"
+    number-sections: false
+    page-layout: full
+    smooth-scroll: true
+    theme: sandstone
+    toc: true
+    toc-depth: 3
+    toc-location: right
+    toc-title: "Contents"
+execute:
+  echo: true
+  warning: false
+  message: false
+html-math-method: mathjax
+knitr:
+  opts_chunk:
+    comment: "#>"
+---
+
+### Setup
+
+```{r}
+#| label: setup
+#| include: true
+
+# ── Libraries ──────────────────────────────────────────────────────────────
+library(tidyverse)
+library(scales)
+library(knitr)
+library(kableExtra)
+library(plotly)
+library(sessioninfo)
+
+# ── Brand Colors ───────────────────────────────────────────────────────────
+brand_primary   <- "#222222"
+brand_secondary <- "#6E6E73"
+brand_accent    <- "#0166CC"
+brand_highlight <- "#1D9E75"
+brand_surface   <- "#F5F5F5"
+brand_text      <- "#222222"
+
+brand_palette <- c(
+  primary   = brand_primary,
+  secondary = brand_secondary,
+  accent    = brand_accent,
+  highlight = brand_highlight
+)
+
+# ── Brand ggplot2 theme ────────────────────────────────────────────────────
+theme_brand <- function(base_size = 12) {
+  theme_minimal(base_size = base_size) %+replace%
+    theme(
+      plot.background  = element_rect(fill = "#FEFEFA", color = NA),
+      panel.background = element_rect(fill = "#FEFEFA", color = NA),
+      panel.grid.major = element_line(color = "#E5E5E5", linewidth = 0.4),
+      panel.grid.minor = element_blank(),
+      plot.title       = element_text(
+                           size = base_size + 2, face = "bold",
+                           color = brand_primary, margin = margin(b = 6)
+                         ),
+      plot.subtitle    = element_text(
+                           size = base_size - 1, color = brand_secondary,
+                           margin = margin(b = 10)
+                         ),
+      plot.caption     = element_text(
+                           size = base_size - 2, color = brand_secondary,
+                           hjust = 1, margin = margin(t = 8)
+                         ),
+      axis.title       = element_text(size = base_size - 1, color = brand_primary),
+      axis.text        = element_text(size = base_size - 2, color = brand_secondary),
+      legend.title     = element_text(size = base_size - 1, face = "bold",
+                                      color = brand_primary),
+      legend.text      = element_text(size = base_size - 2, color = brand_primary),
+      legend.position  = "bottom",
+      strip.text       = element_text(size = base_size - 1, face = "bold",
+                                      color = brand_primary),
+      strip.background = element_rect(fill = "#EAE5DD", color = NA),
+      plot.margin      = margin(12, 16, 12, 12)
+    )
+}
+
+theme_set(theme_brand())
+```
+
+
+### What is Policy as Code?
+
+A policy is a rule: who may access a system, how long data may be kept, what a valid password looks like. Traditionally, policies live in documents — PDFs, wikis, handbooks — and rely on humans to apply them consistently. That model has a known failure mode. Humans make exceptions, miss edge cases, and interpret ambiguous language differently on different days.
+
+Policy as Code moves the rule from the document into executable logic. The policy is still a rule, but now it is a function: it takes inputs, evaluates conditions, and returns a deterministic verdict. It can be tested against known cases, version-controlled alongside the systems it governs, and run automatically in a pipeline rather than reviewed annually by a compliance officer.
+
+The concept is not new — access control lists and firewall rules are policies expressed as code — but the term has gained currency as teams apply the pattern more broadly: to infrastructure configuration, data governance, software supply chains, and business approval workflows.
+
+::: {.callout-note icon = false}
+## The importance of Policy as Code within Governance, Risk & Compliance (GRC) 
+Most compliance programs still run on PDFs. Someone writes a policy in a Word document, routes it through legal, gets it signed, and files it in a SharePoint folder where it quietly rots. When an auditor arrives eighteen months later, a small team rushes to show that the company’s actions match what the document states. This is the status quo, and it is expensive, slow, and fundamentally misrepresents how modern technology organizations operate. Policy as Code swaps the PDF for executable logic. It expresses compliance requirements in a programming language that machines can read. This allows for testing and automatic enforcement. The policy doesn't describe what should happen. It makes it happen.
+
+The practical payoff is speed and verifiability. When a policy is in code, it can be version-controlled like software. You can test it against live infrastructure quickly. Then, you can deploy it across thousands of systems without needing a person to copy requirements into a spreadsheet. A rule that says "all customer data must be encrypted at rest" stops being a matter of interpretation and starts being a check that runs continuously. Drift gets caught in hours, not quarters. For GRC teams, this collapses the gap between what the organization promises regulators and what it actually does, which is where nearly all compliance risk lives. Boards should care about this because that gap is what triggers eight-figure fines and front-page stories.
+
+The harder question is organizational, not technical. Writing policy as code demands that legal, security, and engineering teams share a language, or at least build a reliable translation layer between their worlds. This transition requires compliance pros to review pull requests. Engineers must also see governance as a key design element, not just a checkbox to tick later. Companies that get this right will find that compliance becomes cheaper and faster over time, compounding like a good investment. 
+:::
+
+The example below is deliberately simple. It represents a problem that Policy as Code solves cleanly.
+
+
+### The Policy: Password Complexity
+
+Here is a simple six-step password validation process where password is valid only if it satisfies these independent conditions: a minimum length of twelve characters, maximum length of 25 characters, at least one uppercase letter, at least one lowercase letter, at least one numeric digit, and at least one special character from this list `@$!%*?&`? Each condition is checked in sequence. The first failure terminates evaluation and returns a specific rejection reason.
+
+The specificity of the failure message is a meaningful design choice. A prose policy that says "passwords must be complex" leaves interpretation to the user. A coded policy that returns `FAIL: no special character` tells the user exactly which requirement was not met — and tells the system exactly which condition to re-evaluate after the user makes a correction.
+
+### The Workflow
+
+```{mermaid}
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "primaryColor": "#E6F1FB",
+    "primaryTextColor": "#0C447C",
+    "primaryBorderColor": "#185FA5",
+    "lineColor": "#6E6E73",
+    "secondaryColor": "#EAE5DD",
+    "tertiaryColor": "#F5F5F5",
+    "edgeLabelBackground": "#FEFEFA",
+    "fontSize": "15px"
+  }
+}}%%
+flowchart TD
+    A([Input: password string]):::input --> B{"Length ≥ 12?"}
+
+    B -->|No| F1([FAIL: too short]):::fail
+    B -->|Yes| C{"Length ≤ 25?"}
+
+    C -->|No| F2([FAIL: too long]):::fail
+    C -->|Yes| D{"Contains at least 1 uppercase letter"}
+    
+    D -->|No| F3([FAIL: no uppercase letter]):::fail
+    D -->|Yes| E{"Contains at least 1 lowercase letter?"}
+    
+    
+    E -->|No| F$([FAIL: no lowercase letter]):::fail
+    E -->|Yes| F{"Contains numeric digit?"}
+
+    F -->|No| F5([FAIL: no numeric digit]):::fail
+    F -->|Yes| G{"Contains special character?"}
+
+    G -->|No| F6([FAIL: no special character]):::fail
+    G -->|Yes| P([PASS: password accepted]):::pass
+
+    classDef input   fill:#E6F1FB, stroke:#185FA5, stroke-width:1.5px, color:#0C447C
+    classDef pass    fill:#E1F5EE, stroke:#0F6E56, stroke-width:1.5px, color:#085041
+    classDef fail    fill:#FCEBEB, stroke:#A32D2D, stroke-width:1.5px, color:#791F1F
+```
+
+### The Code
+
+Here's what the actual code looks like using regular expressions (Regex) to validate passwords in C#.
+
+Step 1: Is the length ≥ 12 characters? </br>
+`string basicRegex = "^.{8,}$";`
+
+Step 2: Is the length ≤ 25 characters? </br>
+`string basicRegex = "^.{,25}$";`
+
+Step 3: Does it contain at least one uppercase letter? </br>
+`string basicRegex = (?=.*[A-Z])`
+
+Step 4: Does it contain at least one lowercase letter? </br>
+`string basicRegex = (?=.*[a-z])`
+
+Step 5: Does it contain a nummeric digit? </br>
+`string basicRegex = (?=.*\d)`
+
+Step 6: Does it contain a special character? </br>
+`string basicRegex = (?=.*[@$!%*?&])`
+
+Putting it all together becomes a single line of basicRegex: </br>
+`string advancedRegex = "^{12,25}(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])$";`
+
+### Why this is Policy as Code
+
+The six conditions above are not hidden inside an application — they are explicit, readable, and auditable. A security team can review the rules directly. A developer can write unit tests against each branch. If the organization decides to raise the minimum length to sixteen characters, that is a one-line change with a clear diff in version history. If the organization want to add more rules to the policy (i.e. password can not match employee's birthday, company ID, etc.), these steps can be added to both the workflow and accompanying code. Compare that to updating a PDF policy document, notifying users, and hoping the application enforces the new standard correctly.
+
+### Insights & Conclusion
+
+The password example is trivial on purpose. Nobody needs a Quarto document to validate a twelve-character string. But the pattern it demonstrates — stating a rule as a function, testing that function against known inputs, and returning a specific, deterministic verdict — scales to problems that are not trivial at all. Infrastructure compliance, data retention, access provisioning, third-party risk scoring: each of these is a policy problem currently managed through prose documents that nobody reads with the same precision a machine would bring to the task. </br>
+
+What makes the pattern worth adopting is the failure message, not the pass. A PDF policy that says "passwords must be complex" generates ambiguity. The coded version that returns `"Rejected: no uppercase letter found"` eliminates it. That shift from vague guidance to specific, actionable output is the real product of expressing policy as code. It changes what a compliance team delivers from *opinions about rules* to *evidence of enforcement*. </br>
+
+The organizational cost is worth acknowledging. Writing policy as executable logic requires that compliance professionals learn to read code, or at least review pull requests with enough fluency to confirm the logic matches the intent. Engineers, in turn, need to treat governance constraints as first-class design inputs rather than afterthoughts bolted on before an audit. Neither adjustment is free, and both demand sustained sponsorship from leadership. The companies that defer this investment will continue to discover compliance gaps the same way they always have: during an incident, when the cost of remediation is highest. </br>
+
+Version control deserves a final word. When a policy lives in a Git repository, every change carries a timestamp, an author, and a diff. An auditor can reconstruct the entire history of a rule — when it was introduced, who modified it, what the previous version said — in minutes rather than weeks. That audit trail is not a feature of Policy as Code. It is perhaps the strongest argument for it. </br>
+
+
+### Session Information
+
+```{r}
+#| label: session-info
+#| echo: false
+sessioninfo::session_info()
+```
+
+---
+
+*Rendered with [Quarto](https://quarto.org/) with `Mermaid` | Packages: `dplyr` `kableExtra` `knitr` `scales` `sessioninfo` `tidyverse`*
