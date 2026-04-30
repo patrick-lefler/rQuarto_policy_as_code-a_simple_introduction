@@ -4,53 +4,48 @@
 **Published:** April 30, 2026  
 **Rendered Output:** [View on GitHub Pages](https://patrick-lefler.github.io/rQuarto_policy_as_code-a_simple_introduction_2026-04-30/)
 
----
+Expressing organizational compliance rules as executable, version-controlled logic rather than prose documents.
+
+## Introduction
+
+Most compliance programs run on PDFs. This project replaces that model with a working demonstration of Policy as Code — rules expressed as functions that take inputs, evaluate conditions, and return deterministic verdicts. The entry point is deliberately simple: password complexity validation. The argument is not.
 
 ## Overview
 
-Policy as Code is the practice of expressing organizational rules as executable, version-controlled logic rather than prose documents. This project introduces the concept through the simplest possible worked example — a six-condition password complexity validator — to make the pattern legible to both compliance professionals and engineers. The argument is organizational as much as technical: a rule that lives in a Git repository can be tested, audited, and automatically enforced; a rule that lives in a PDF cannot.
+The document introduces Policy as Code through a six-condition password validation function implemented in C# using regular expressions. Each condition — minimum length, maximum length, uppercase, lowercase, numeric digit, special character — is encoded as a discrete, testable step. The workflow is visualized as a Mermaid flowchart rendered natively in Quarto. The closing sections make the case for why this pattern matters to GRC teams, boards, and engineers: it converts compliance from periodic attestation into continuous, auditable enforcement. The target audience is anyone responsible for the gap between what an organization promises regulators and what it actually does.
 
----
+## Tech Stack
 
-## Methodology
+- **Language:** R
+- **Framework:** [Quarto](https://quarto.org/)
+- **Primary Libraries:** tidyverse, knitr, kableExtra, plotly, scales, sessioninfo
+- **Diagram Tooling:** Mermaid (via Quarto-native rendering)
+- **Deployment / Output:** Self-contained HTML document
 
-The document builds the concept in four layers. First, it establishes the failure mode of prose-based policy: ambiguity of interpretation, manual enforcement, and the gap between what the organization promises regulators and what it actually does. Second, it specifies the password policy as six independent, sequentially evaluated conditions — minimum and maximum length, uppercase, lowercase, numeric, and special-character requirements — each returning a named failure state on rejection. Third, it renders the evaluation logic as a Mermaid flowchart, tracing every decision branch from input string to `PASS` or a specific `FAIL` message. Fourth, it constructs the equivalent C# regex implementation in six steps, from individual conditions to a single composite expression, demonstrating that the flowchart and the code are the same artifact in two notations.
+## Repository Structure
 
----
+```
+├── data/               # Raw and processed data
+├── scripts/            # Helper R scripts
+├── models/             # Saved model objects (.rds)
+├── output/             # Rendered HTML files
+├── _brand.yml          # Brand color and typography configuration
+├── _quarto.yml         # Project configuration
+└── index.qmd           # Main Quarto entry point
+```
 
 ## Key Findings
 
-- A coded policy that returns `FAIL: no special character` eliminates the interpretive ambiguity that a prose policy generates. The failure message — not the pass — is the primary product of expressing policy as executable logic.
-- The six-condition password validator produces six distinct, actionable rejection states. Each maps to a one-line change in source code if the organization modifies the requirement, with a clear diff in version history.
-- When policy lives in a Git repository, an auditor can reconstruct the complete history of a rule — author, timestamp, and diff — in minutes. The same reconstruction from a document management system typically takes weeks.
-- The organizational cost is real and worth naming: compliance professionals must be able to read pull requests with enough fluency to confirm the logic matches the intent; engineers must treat governance constraints as first-class design inputs rather than pre-audit checkboxes.
+1. **The failure message is the product.** A prose policy that says "passwords must be complex" generates interpretation. A coded policy that returns `FAIL: no special character` eliminates it. That shift — from vague guidance to specific, actionable output — is what compliance teams actually deliver when they adopt this pattern.
 
----
+2. **Version control is the strongest argument for the approach.** When a policy lives in a Git repository, every change carries a timestamp, an author, and a diff. An auditor can reconstruct the full history of a rule in minutes, not weeks.
 
-## Project Structure
-
-```
-├── index.qmd          # Source document
-├── _brand.yml         # Brand color and typography configuration
-├── docs/
-│   └── index.html     # Rendered output (GitHub Pages root)
-└── README.md
-```
----
-
-## Requirements
-
-- R ≥ 4.5.2
-- Quarto ≥ 1.8.26
-
-```r
-install.packages(c("tidyverse", "scales", "knitr", "kableExtra", "plotly", "sessioninfo"))
-```
-
-The rendered HTML is written to `docs/index.html` for GitHub Pages hosting.
-
----
+3. **The organizational cost is real and worth naming.** Writing policy as executable logic requires compliance professionals to read code and engineers to treat governance as a first-class design input. Neither adjustment is free. Companies that defer this investment will continue to discover compliance gaps during incidents, when remediation is most expensive.
 
 ## License
 
-© 2026 Patrick Lefler. All rights reserved.
+This project is licensed under the MIT License. See the `LICENSE` file for details.
+
+## Contact
+
+Patrick Lefler — [LinkedIn](https://www.linkedin.com/in/patricklefler/) | [patricklefler.github.io](https://patricklefler.github.io) | [Substack](https://substack.com/@pflefler)
