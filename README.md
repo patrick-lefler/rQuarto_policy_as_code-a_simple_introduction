@@ -2,7 +2,7 @@
 
 **Author:** Patrick Lefler  
 **Published:** April 30, 2026  
-**Rendered Output:** [View on GitHub Pages](https://patrick-lefler.github.io/rQuarto_policy_as_code-a_simple_introduction/)
+**Rendered Output:** [View on GitHub Pages](https://patrick-lefler.github.io/rQuarto_policy_as_code-a_simple_introduction_2026-04-30/)
 
 ---
 
