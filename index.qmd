@@ -1,15 +1,17 @@
 ---
-title: "Policy as Code"
-subtitle: "A Simple Introduction"
+title: "Policy as Code - A Simple Introduction"
+subtitle: "From PDF to Pipeline: Rules That Run Themselves"
 author: "Patrick Lefler"
 date: "April 30, 2026"
-abstract: "Policy as Code is the practice of expressing organizational rules as executable, version-controlled logic rather than as prose. This document introduces the concept through the most simple example possible - setting password characteristics that any team can read, test, and extend."
+abstract: "Most compliance programs still run on documents. A rule gets written in prose, approved through committee, filed somewhere, and consulted — if it is consulted at all — by a human who must decide what it means. That model has a well-documented failure mode: inconsistent interpretation, undetected drift, and a chronic gap between what the policy says and what the systems actually do.</br> </br>
+Policy as Code replaces the document with executable logic. The rule becomes a function: it accepts inputs, evaluates conditions, and returns a deterministic verdict that a machine can enforce, a developer can test, and an auditor can trace back through version history. The approach is not new — firewall rules and access control lists have always been policies expressed as code — but the pattern is now being applied more broadly to data governance, infrastructure configuration, and business approval workflows.</br> </br>
+This document introduces the concept through a deliberately simple example: a C# password validation function built with regular expressions. The simplicity is the point. The same structure that governs twelve characters scales to the problems that keep boards up at night."
 format:
   html:
     code-fold: true
     code-copy: false
     code-overflow: wrap
-    code-tools: false
+    code-tools: true
     code-summary: "Display code"
     df-print: kable
     embed-math: true
@@ -103,7 +105,6 @@ theme_brand <- function(base_size = 12) {
 theme_set(theme_brand())
 ```
 
-
 ### What is Policy as Code?
 
 A policy is a rule: who may access a system, how long data may be kept, what a valid password looks like. Traditionally, policies live in documents — PDFs, wikis, handbooks — and rely on humans to apply them consistently. That model has a known failure mode. Humans make exceptions, miss edge cases, and interpret ambiguous language differently on different days.
@@ -112,17 +113,21 @@ Policy as Code moves the rule from the document into executable logic. The polic
 
 The concept is not new — access control lists and firewall rules are policies expressed as code — but the term has gained currency as teams apply the pattern more broadly: to infrastructure configuration, data governance, software supply chains, and business approval workflows.
 
-::: {.callout-note icon = false}
-## The importance of Policy as Code within Governance, Risk & Compliance (GRC) 
+
+
+::: {.callout-note icon="false"}
+
+## The importance of Policy as Code within Governance, Risk & Compliance (GRC)
+
 Most compliance programs still run on PDFs. Someone writes a policy in a Word document, routes it through legal, gets it signed, and files it in a SharePoint folder where it quietly rots. When an auditor arrives eighteen months later, a small team rushes to show that the company’s actions match what the document states. This is the status quo, and it is expensive, slow, and fundamentally misrepresents how modern technology organizations operate. Policy as Code swaps the PDF for executable logic. It expresses compliance requirements in a programming language that machines can read. This allows for testing and automatic enforcement. The policy doesn't describe what should happen. It makes it happen.
 
 The practical payoff is speed and verifiability. When a policy is in code, it can be version-controlled like software. You can test it against live infrastructure quickly. Then, you can deploy it across thousands of systems without needing a person to copy requirements into a spreadsheet. A rule that says "all customer data must be encrypted at rest" stops being a matter of interpretation and starts being a check that runs continuously. Drift gets caught in hours, not quarters. For GRC teams, this collapses the gap between what the organization promises regulators and what it actually does, which is where nearly all compliance risk lives. Boards should care about this because that gap is what triggers eight-figure fines and front-page stories.
 
-The harder question is organizational, not technical. Writing policy as code demands that legal, security, and engineering teams share a language, or at least build a reliable translation layer between their worlds. This transition requires compliance pros to review pull requests. Engineers must also see governance as a key design element, not just a checkbox to tick later. Companies that get this right will find that compliance becomes cheaper and faster over time, compounding like a good investment. 
+The harder question is organizational, not technical. Writing policy as code demands that legal, security, and engineering teams share a language, or at least build a reliable translation layer between their worlds. This transition requires compliance pros to review pull requests. Engineers must also see governance as a key design element, not just a checkbox to tick later. Companies that get this right will find that compliance becomes cheaper and faster over time, compounding like a good investment.
+
 :::
 
 The example below is deliberately simple. It represents a problem that Policy as Code solves cleanly.
-
 
 ### The Policy: Password Complexity
 
@@ -133,6 +138,8 @@ The specificity of the failure message is a meaningful design choice. A prose po
 ### The Workflow
 
 ```{mermaid}
+#> label: mermaid_workflow
+
 %%{init: {
   "theme": "base",
   "themeVariables": {
@@ -177,26 +184,19 @@ flowchart TD
 
 Here's what the actual code looks like using regular expressions (Regex) to validate passwords in C#.
 
-Step 1: Is the length ≥ 12 characters? </br>
-`string basicRegex = "^.{8,}$";`
+Step 1: Is the length ≥ 12 characters? </br> `string basicRegex = "^.{8,}$";`
 
-Step 2: Is the length ≤ 25 characters? </br>
-`string basicRegex = "^.{,25}$";`
+Step 2: Is the length ≤ 25 characters? </br> `string basicRegex = "^.{,25}$";`
 
-Step 3: Does it contain at least one uppercase letter? </br>
-`string basicRegex = (?=.*[A-Z])`
+Step 3: Does it contain at least one uppercase letter? </br> `string basicRegex = (?=.*[A-Z])`
 
-Step 4: Does it contain at least one lowercase letter? </br>
-`string basicRegex = (?=.*[a-z])`
+Step 4: Does it contain at least one lowercase letter? </br> `string basicRegex = (?=.*[a-z])`
 
-Step 5: Does it contain a nummeric digit? </br>
-`string basicRegex = (?=.*\d)`
+Step 5: Does it contain a nummeric digit? </br> `string basicRegex = (?=.*\d)`
 
-Step 6: Does it contain a special character? </br>
-`string basicRegex = (?=.*[@$!%*?&])`
+Step 6: Does it contain a special character? </br> `string basicRegex = (?=.*[@$!%*?&])`
 
-Putting it all together becomes a single line of basicRegex: </br>
-`string advancedRegex = "^{12,25}(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])$";`
+Putting it all together becomes a single line of basicRegex: </br> `string advancedRegex = "^{12,25}(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])$";`
 
 ### Why this is Policy as Code
 
@@ -212,7 +212,6 @@ The organizational cost is worth acknowledging. Writing policy as executable log
 
 Version control deserves a final word. When a policy lives in a Git repository, every change carries a timestamp, an author, and a diff. An auditor can reconstruct the entire history of a rule — when it was introduced, who modified it, what the previous version said — in minutes rather than weeks. That audit trail is not a feature of Policy as Code. It is perhaps the strongest argument for it. </br>
 
-
 ### Session Information
 
 ```{r}
@@ -221,6 +220,6 @@ Version control deserves a final word. When a policy lives in a Git repository, 
 sessioninfo::session_info()
 ```
 
----
+------------------------------------------------------------------------
 
 *Rendered with [Quarto](https://quarto.org/) + [Mermaid](https://mermaid.js.org/) | Packages: `dplyr` `kableExtra` `knitr` `scales` `sessioninfo` `tidyverse`*
