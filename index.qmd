@@ -1,15 +1,13 @@
 ---
-title: "Policy as Code - A Simple Introduction"
-subtitle: "From PDF to Pipeline: Rules That Run Themselves"
+title: "Policy as Code"
+subtitle: "A Simple Introduction"
 author: "Patrick Lefler"
 date: "April 30, 2026"
-abstract: "Most compliance programs still run on documents. A rule gets written in prose, approved through committee, filed somewhere, and consulted — if it is consulted at all — by a human who must decide what it means. That model has a well-documented failure mode: inconsistent interpretation, undetected drift, and a chronic gap between what the policy says and what the systems actually do.</br> </br>
-Policy as Code replaces the document with executable logic. The rule becomes a function: it accepts inputs, evaluates conditions, and returns a deterministic verdict that a machine can enforce, a developer can test, and an auditor can trace back through version history. The approach is not new — firewall rules and access control lists have always been policies expressed as code — but the pattern is now being applied more broadly to data governance, infrastructure configuration, and business approval workflows.</br> </br>
-This document introduces the concept through a deliberately simple example: a C# password validation function built with regular expressions. The simplicity is the point. The same structure that governs twelve characters scales to the problems that keep boards up at night."
+abstract: "Most compliance programs still run on documents. A rule gets written in prose, approved through committee, filed somewhere, and consulted — if it is consulted at all — by a human who must decide what it means. That model has a well-documented failure mode: inconsistent interpretation, undetected drift, and a chronic gap between what the policy says and what the systems actually do. </br></br> Policy as Code replaces the document with executable logic. The rule becomes a function: it accepts inputs, evaluates conditions, and returns a deterministic verdict that a machine can enforce, a developer can test, and an auditor can trace back through version history. The approach is not new — firewall rules and access control lists have always been policies expressed as code — but the pattern is now being applied more broadly to data governance, infrastructure configuration, and business approval workflows. </br></br> This document introduces the concept through a deliberately simple example: a C# password validation function built with regular expressions. The simplicity is the point. The same structure that governs twelve characters scales to the problems that keep boards up at night."
 format:
   html:
     code-fold: true
-    code-copy: false
+    code-copy: true
     code-overflow: wrap
     code-tools: true
     code-summary: "Display code"
@@ -113,9 +111,7 @@ Policy as Code moves the rule from the document into executable logic. The polic
 
 The concept is not new — access control lists and firewall rules are policies expressed as code — but the term has gained currency as teams apply the pattern more broadly: to infrastructure configuration, data governance, software supply chains, and business approval workflows.
 
-
-
-::: {.callout-note icon="false"}
+::: {.callout-note icon = false}
 
 ## The importance of Policy as Code within Governance, Risk & Compliance (GRC)
 
@@ -138,8 +134,6 @@ The specificity of the failure message is a meaningful design choice. A prose po
 ### The Workflow
 
 ```{mermaid}
-#> label: mermaid_workflow
-
 %%{init: {
   "theme": "base",
   "themeVariables": {
@@ -222,4 +216,4 @@ sessioninfo::session_info()
 
 ------------------------------------------------------------------------
 
-*Rendered with [Quarto](https://quarto.org/) + [Mermaid](https://mermaid.js.org/) | Packages: `dplyr` `kableExtra` `knitr` `scales` `sessioninfo` `tidyverse`*
+*Rendered with [Quarto](https://quarto.org/) + [Mermaid](https://mermaid.js.org/) \| Packages: `dplyr`, `kableExtra`, `knitr`, `scales`, `sessioninfo`, `tidyverse`*
